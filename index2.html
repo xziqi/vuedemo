@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vue1026.js"></script>
+    <script src="vue-resource121.js"></script>
+    <style>
+        #tb{
+            width: 800px;
+            border-collapse:collapse;
+            margin: 100px auto;
+            text-align: center;
+        }
+        #tb th{
+            border: 1px solid #000;
+            background-color: #0094ff;
+            color:#fff;
+            font-size: 16px;
+            padding: 5px;
+        }
+        #tb td{
+            border: 1px solid #000;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- v-on指令的按键修饰符-->
+    <input type="text" placeholder="请输入名称" ng-model="pname">
+    <button @click="add">添加品牌</button>
+    <br/>
+    <table id="tb">
+        <tr>
+            <th>编号</th>
+            <th>名称</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        <tr v-for="item in list">
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.ctime}}</td>
+            <td>
+                <a href="javascript:void(0);" @click='delData(item.id)'>删除</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    var vm=new Vue({
+        el:"#app",
+        data:{
+            list:[],
+            pname:''
+        },
+        created:function () {
+            this.getlist();
+        },
+        methods:{
+            delData:function (id) {
+                var url="http://www.lovegf.cn:8899/api/delproduct/"+id;
+                this.$http.get(url).then(function (res) {
+                    if(res.body.status!=0){
+                        alert(res.body.message);
+                        return;
+                    }
+                    this.getlist();
+                })
+            },
+            add:function () {
+                var url="http://www.lovegf.cn:8899/api/addproduct";
+                var upData={name:this.pname};
+                this.$http.post(url,upData,{emulateJSON:true}).then(function (res) {
+                    if(res.body.status!=0){
+                        alert(res.body.message);
+                        return;
+                    }
+                    this.pname="";
+                    this.getlist();
+                })
+            },
+           getlist:function () {
+               var url="http://www.lovegf.cn:8899/api/getprodlist";
+               this.$http.get(url).then(function (res) {
+                   if(res.body.status!=0){
+                       return;
+                   }
+                   this.list=res.body.message;
+                   console.log(this.list);
+               })
+           }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vue1026.js"></script>
+    <style>
+        #tb{
+            width: 800px;
+            border-collapse:collapse;
+            margin: 100px auto;
+            text-align: center;
+        }
+        #tb th{
+            border: 1px solid #000;
+            background-color: #0094ff;
+            color:#fff;
+            font-size: 16px;
+            padding: 5px;
+        }
+        #tb td{
+            border: 1px solid #000;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="text" placeholder="请输入编号" v-model="id">
+    <!-- v-on指令的按键修饰符-->
+    <input type="text" placeholder="请输入名称" v-model="name"  @keydown.enter='addData'>
+    <button @click='addData'>添加品牌</button>
+    <br/>
+    <input type="text" v-focus v-colors="color" placeholder="输入查询条件" v-model='sname'>
+    <table id="tb">
+        <tr>
+            <th>编号</th>
+            <th>名称</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        <tr v-if="list.length==0">
+            <td colspan=4>当前列表无数据</td>
+        </tr>
+        <tr v-for="item in list |filterBy sname in 'name'">
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.ctime | datefmt}}</td>
+            <td><a href="javascript:;" @click="delData(item.id)">删除</a></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    Vue.directive('focus',function () {
+        var inputObj = this.el;
+        inputObj.focus();
+    })
+    Vue.directive('colors',function () {
+        console.log(this.vm.color);
+        this.el.style.color=this.vm[this.expression];
+    })
+    Vue.filter('datefmt',function (input) {
+        var str='';
+        var year = input.getFullYear();
+        var month = input.getMonth();
+        var date = input.getDate();
+//                var hours = input.getHours();
+//                var minutes = input.getMinutes();
+//                var seconds = input.getSeconds();
+        str+=year+'-'+month+'-'+date;
+//                str+=year+'-'+month+'-'+date+'-------------'+hours+'-'+minutes+'-'+seconds
+        return str;
+    })
+    var vm=new Vue({
+        el:"#app",
+        data:{
+            color:'red',
+            list:[
+                {id:1,name:'奔驰',ctime:new Date()},
+                {id:2,name:'长安奔奔',ctime:new Date()},
+                {id:3,name:'宝马',ctime:new Date()}
+
+            ],
+            id:'',
+            name:'',
+            sname:'',
+        },
+        methods:{
+            addData:function () {
+                var p={id:this.id,name:this.name,ctime:new Date()};
+                this.list.push(p);
+                this.id='';
+                this.name='';
+            },
+            delData:function (id) {
+                if(!confirm('是否要删除数据？')){
+                    return
+                }
+                //findIndex()
+               var index= this.list.findIndex(function (item) {
+                    return item.id==id
+                });
+                this.list.splice(index,1)
+                }
+        }
+    })
+</script>
+</body>
+</html>
